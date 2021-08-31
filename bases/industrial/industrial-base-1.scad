@@ -2,51 +2,13 @@ $fa = $preview ? 5 : 0.1;
 $fs = $preview ? 0.5 : 0.1;
 base_diameter = 32;
 base_height = 4;
-base_surface_thickness = 0.5;
-preview_surface = false;
+base_bevel_angle = 30;
+base_surface_depth = 0.5;
+preview_base_surface = false;
 
-module base (diameter = base_diameter) {
-    radius = diameter / 2;
+use <../../components/base.scad>;
 
-    cylinder(base_height, radius, radius - base_diameter / 16);
-}
-
-module base_cutout () {
-    translate([0, 0, -1]) {
-        base(base_diameter - 1);
-    }
-}
-
-module base_surface () {
-    intersection() {
-        base();
-
-        if (!$preview || preview_surface) {
-            translate([0, 0, base_height - base_surface_thickness]) scale([base_diameter / 512, base_diameter / 512, base_surface_thickness / 100]) {
-                surface("../../heightmaps/cracked-earth-1.png", center = true);
-            }
-        }
-    }
-}
-
-module base_surface_cutout () {
-    translate([0, 0, base_height - base_surface_thickness]) {
-        cylinder(base_surface_thickness + 0.01, r = base_diameter);
-    }
-}
-
-module base_with_surface () {
-    color("sandybrown") {
-        difference() {
-            base();
-            base_surface_cutout();
-        }
-
-        base_surface();
-    }
-}
-
-module grid (angle, thickness, spacing, z_layer, rotation = [0, 0, 0], translation = [0, 0, 0]) {
+module grid (angle, thickness, spacing, z, rotation = [0, 0, 0], translation = [0, 0, 0]) {
 
     module bar (length, thickness) {
         intersection() {
@@ -66,24 +28,22 @@ module grid (angle, thickness, spacing, z_layer, rotation = [0, 0, 0], translati
         }
     }
 
-    diameter = base_diameter - z_layer;
-
-    translate([0, 0, z_layer]) {
+    translate([0, 0, z]) {
         color("dimgray") intersection() {
-            base(diameter);
+            base(base_diameter, base_height, base_bevel_angle, z = z);
 
             translate(translation) rotate(rotation) {
-                bars(diameter * 1.2, spacing);
+                bars(base_diameter, spacing);
 
                 rotate([0, 0, angle]) {
-                    bars(diameter * 1.2, spacing);
+                    bars(base_diameter, spacing);
                 }
             }
         }
     }
 }
 
-module sheet (thickness, z_layer, rotation = [0, 0, 0], translation = [0, 0, 0]) {
+module sheet (thickness, z, rotation = [0, 0, 0], translation = [0, 0, 0]) {
 
     module rivet (size) {
         difference() {
@@ -107,15 +67,14 @@ module sheet (thickness, z_layer, rotation = [0, 0, 0], translation = [0, 0, 0])
         }
     }
 
-    diameter = base_diameter - z_layer;
     rivet_gutter = 0.5;
 
-    translate([0, 0, z_layer]) {
+    translate([0, 0, z]) {
         color("lightgray") intersection() {
-            base(diameter);
+            base(base_diameter, base_height, base_bevel_angle, z = z);
 
             translate(translation) rotate(rotation) {
-                cube([diameter, diameter, thickness]);
+                cube([base_diameter, base_diameter, thickness]);
 
                 for (i = [0 : 20]) {
                     translate([rivet_gutter, rivet_gutter + 2 * i, thickness / 2 + 0.15]) {
@@ -131,19 +90,19 @@ module sheet (thickness, z_layer, rotation = [0, 0, 0], translation = [0, 0, 0])
     }
 }
 
-module pipe (inner_diameter, rotation = [0, 0, 0], translation = [0, 0, 0]) {
+module pipe (length, outer_diameter, rotation = [0, 0, 0], translation = [0, 0, 0]) {
     translate(translation) rotate(rotation) {
         color("gray") difference() {
             union() {
-                cylinder(20, inner_diameter / 2, inner_diameter / 2);
+                cylinder(length, d = outer_diameter);
 
-                translate([0, 0, 17]) {
-                    cylinder(inner_diameter / 2, r = 3.2);
+                translate([0, 0, length - 3]) {
+                    cylinder(3, d = outer_diameter * 1.1);
                 }
             }
 
             translate([0, 0, 1]) {
-                cylinder(20, r = 2.5);
+                cylinder(length, d = outer_diameter - 0.5);
             }
         }
     }
@@ -152,7 +111,14 @@ module pipe (inner_diameter, rotation = [0, 0, 0], translation = [0, 0, 0]) {
 union() {
     difference() {
         union() {
-            base_with_surface();
+            base_with_surface(
+                base_diameter,
+                base_height,
+                base_bevel_angle,
+                ["../heightmaps/cracked-earth-1.png", 512, 512],
+                base_surface_depth,
+                surface_visible = !$preview || preview_base_surface
+            );
 
             difference() {
                 grid(60, 0.3, 1, base_height - 0.2, rotation = [2, 3, 0]);
@@ -165,16 +131,28 @@ union() {
             sheet(0.5, base_height - 0.05, rotation = [2, 3, 0], translation = [-3.6, -1.4, 0.3]);
         }
 
-        base_cutout();
+        base_cutout(
+            base_diameter,
+            base_height,
+            base_bevel_angle,
+            wall_thickness = 1,
+            top_thickness = 1.5
+        );
     }
 
     difference() {
-        pipe(6, rotation = [10, 50, 5], translation = [-7, -5.5, -8]);
+        pipe(20, 5.5, rotation = [10, 50, 5], translation = [-7, -5, -8]);
 
         translate([-base_diameter / 2, -base_diameter / 2, -base_diameter]) {
             cube(base_diameter);
         }
 
-        base_cutout();
+        base_cutout(
+            base_diameter,
+            base_height,
+            base_bevel_angle,
+            wall_thickness = 1,
+            top_thickness = 1.5
+        );
     }
 }
