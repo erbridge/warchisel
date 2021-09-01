@@ -1,7 +1,9 @@
+function base_inset(height, bevel_angle) = height * tan(bevel_angle);
+
 module base (true_diameter, true_height, bevel_angle, z = 0) {
     true_radius = true_diameter / 2;
-    inset = true_height * tan(bevel_angle);
-    radius_at_z = true_radius - z * tan(bevel_angle);
+    inset = base_inset(true_height, bevel_angle);
+    radius_at_z = true_radius - base_inset(z, bevel_angle);
 
     cylinder(true_height, radius_at_z, radius_at_z - inset);
 }
@@ -97,5 +99,39 @@ module base_with_surface (
                 surface_depth
             );
         }
+    }
+}
+
+module within_base_outer_bounds (
+    diameter,
+    height,
+    surface_depth,
+    max_height
+) {
+    intersection() {
+        translate([0, 0, height - surface_depth]) {
+            cylinder(max_height + surface_depth, d = diameter);
+        }
+
+        if ($children > 0) children();
+    }
+}
+
+module within_base_inner_bounds (
+    diameter,
+    height,
+    bevel_angle,
+    surface_depth,
+    max_height
+) {
+    intersection() {
+        translate([0, 0, height - surface_depth]) {
+            cylinder(
+                max_height + surface_depth,
+                r = diameter / 2 - base_inset(height, bevel_angle)
+            );
+        }
+
+        if ($children > 0) children();
     }
 }
