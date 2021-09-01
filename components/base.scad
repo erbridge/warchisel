@@ -102,6 +102,42 @@ module base_with_surface (
     }
 }
 
+module on_base_with_surface (
+    diameter,
+    height,
+    bevel_angle,
+    wall_thickness,
+    top_thickness,
+    surface_texture_data,
+    surface_depth,
+    colour = "sandybrown",
+    surface_visible = !$preview
+) {
+    difference() {
+        union() {
+            base_with_surface(
+                diameter,
+                height,
+                bevel_angle,
+                surface_texture_data,
+                surface_depth,
+                colour = colour,
+                surface_visible = surface_visible
+            );
+
+            if ($children > 0) children();
+        }
+
+        base_cutout(
+            diameter,
+            height,
+            bevel_angle,
+            wall_thickness = wall_thickness,
+            top_thickness = top_thickness
+        );
+    }
+}
+
 module within_base_outer_bounds (
     diameter,
     height,
