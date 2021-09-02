@@ -161,13 +161,21 @@ module within_base_inner_bounds (
     max_height
 ) {
     intersection() {
-        translate([0, 0, height - surface_depth]) {
-            cylinder(
-                max_height + surface_depth,
-                r = diameter / 2 - base_inset(height, bevel_angle)
-            );
+        union() {
+            base(diameter, height, bevel_angle);
+
+            translate([0, 0, height]) {
+                cylinder(
+                    max_height + surface_depth,
+                    r = diameter / 2 - base_inset(height, bevel_angle)
+                );
+            }
         }
 
         if ($children > 0) children();
     }
+}
+
+within_base_inner_bounds(32, 5, 30, 1, 20) {
+    cube(100, center = true);
 }
