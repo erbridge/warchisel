@@ -1,11 +1,11 @@
 $fa = $preview ? 5 : 0.1;
 $fs = $preview ? 0.5 : 0.1;
 base_diameter = 32;
-base_height = 4;
+base_height = 5;
 base_bevel_angle = 30;
-base_wall_thickness = 1;
-base_top_thickness = 1.5;
-base_surface_depth = 0.5;
+base_wall_thickness = 2;
+base_top_thickness = 2.5;
+base_surface_depth = 1;
 preview_base_surface = false;
 
 use <../../components/base.scad>;
@@ -27,40 +27,40 @@ on_base_with_surface(
         grid(
             [9.2, 22],
             60,
-            0.3,
-            1,
-            position = [6, -8, base_height - base_surface_depth - 1],
+            0.4,
+            1.5,
+            position = [7, -8, base_height - base_surface_depth - 0.9],
             rotation = [2, -9, 14]
         );
 
         grid(
             [5, 4],
-            10,
-            0.1,
-            0.35,
-            position = [-10, -12, base_height + 0.3],
+            20,
+            0.3,
+            1,
+            position = [-11, -10, base_height],
             rotation = [-10, -2, 25]
         ) {
-            translate([3, -0.2, 0]) rotate([0, 0, 60]) cube([5, 5, 5]);
+            translate([3, -0.2, 0]) rotate([0, 0, 60]) cube(5);
         }
 
         grid(
-            [5, 5],
+            [7.5, 7.5],
             45,
-            0.2,
-            0.8,
+            0.3,
+            1.3,
             position = [-1, -10, base_height - base_surface_depth - 2],
             rotation = [72, -23, 176]
         ) {
-            translate([2.5, 2.5, 0]) cylinder(1, d = 5);
+            translate([3.75, 3.75, 0]) cylinder(1, d = 7.5);
         };
 
         pipe(
             9,
-            5.5,
-            5,
-            2,
-            6,
+            8.5,
+            7.5,
+            4,
+            9,
             position = [6, -3, 0],
             rotation = [50, 10, -70]
         );
@@ -79,7 +79,7 @@ on_base_with_surface(
             0.4,
             5,
             0.5,
-            position = [-2, 9, base_height - 0.7],
+            position = [-2, 12, base_height - 0.8],
             rotation = [2, 3, 180]
         );
     }
