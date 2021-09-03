@@ -1,0 +1,3 @@
+[submodule "modules/bend"]
+	path = modules/bend
+	url = git@github.com:stuartpb/bend.scad.git

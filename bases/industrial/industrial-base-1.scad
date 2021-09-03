@@ -24,11 +24,12 @@ on_base_with_surface(
     surface_visible = !$preview || preview_base_surface
 ) {
     within_base_outer_bounds(base_diameter, base_height, base_surface_depth, 20) {
-        grid(
+        bent_grid(
             [9.2, 22],
             60,
             0.4,
             1.5,
+            [0.03, 0.0013],
             position = [7, -8, base_height - base_surface_depth - 0.9],
             rotation = [2, -9, 14]
         );
@@ -53,7 +54,7 @@ on_base_with_surface(
             rotation = [72, -23, 176]
         ) {
             translate([3.75, 3.75, 0]) cylinder(1, d = 7.5);
-        };
+        }
 
         pipe(
             9,

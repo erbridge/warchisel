@@ -1,3 +1,5 @@
+use <../helpers/inverse_rotate.scad>;
+use <../helpers/parabolic_bend_2d.scad>;
 use <./bar.scad>;
 
 module grid (
@@ -27,8 +29,8 @@ module grid (
         }
     }
 
-    length = size[0];
-    width = size[1];
+    length = size.x;
+    width = size.y;
 
     color(colour)
     translate(position)
@@ -48,6 +50,42 @@ module grid (
         }
 
         if ($children > 0) children();
+    }
+}
+
+module bent_grid (
+    size,
+    angle,
+    bar_thickness,
+    spacing,
+    steepness,
+    position = [0, 0, 0],
+    rotation = [0, 0, 0],
+    colour = "dimgray"
+) {
+    length = size.x;
+    width = size.y;
+
+    translate(position)
+    rotate(rotation)
+    parabolic_bend_2d([length, width, bar_thickness], steepness)
+    inverse_rotate(rotation)
+    translate(-position) {
+        grid (
+            size,
+            angle,
+            bar_thickness,
+            spacing,
+            position = position,
+            rotation = rotation,
+            colour = colour
+        ) {
+            if ($children > 0) {
+                children();
+            } else {
+                cube([length, width, bar_thickness]);
+            }
+        };
     }
 }
 
@@ -98,3 +136,16 @@ grid(
 ) {
     cube(10);
 };
+
+bent_grid(
+    [9.2, 22],
+    60,
+    0.4,
+    1.5,
+    [0.03, 0.005],
+    position = [7, -8, 40],
+    rotation = [2, -9, 14],
+    colour = "yellow",
+    $fa = 2,
+    $fs = 1
+);
